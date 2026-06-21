@@ -95,6 +95,34 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
+// --- View uploaded files in browser (no shell access needed) ---
+app.get('/files', (req, res) => {
+  let html = '<h2 style="font-family:sans-serif;">Uploaded Student Data</h2>';
+
+  if (!fs.existsSync(UPLOAD_ROOT)) {
+    html += '<p>No uploads yet.</p>';
+    return res.send(html);
+  }
+
+  const studentFolders = fs.readdirSync(UPLOAD_ROOT);
+
+  if (studentFolders.length === 0) {
+    html += '<p>No uploads yet.</p>';
+  } else {
+    studentFolders.forEach(folder => {
+      const folderPath = path.join(UPLOAD_ROOT, folder);
+      const files = fs.readdirSync(folderPath);
+      html += `<h3 style="font-family:sans-serif;">${folder} (${files.length} files)</h3><ul style="font-family:sans-serif;">`;
+      files.forEach(f => {
+        html += `<li>${f}</li>`;
+      });
+      html += '</ul>';
+    });
+  }
+
+  res.send(html);
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running! Students can access it at:`);
   console.log(`  http://<tumhare-PC-ka-IP>:${PORT}`);
