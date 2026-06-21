@@ -53,6 +53,7 @@ const upload = multer({
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
+app.use('/uploads', express.static(UPLOAD_ROOT)); // makes uploaded files directly openable in browser
 
 // --- Serve the upload form ---
 app.get('/', (req, res) => {
@@ -114,7 +115,8 @@ app.get('/files', (req, res) => {
       const files = fs.readdirSync(folderPath);
       html += `<h3 style="font-family:sans-serif;">${folder} (${files.length} files)</h3><ul style="font-family:sans-serif;">`;
       files.forEach(f => {
-        html += `<li>${f}</li>`;
+        const fileUrl = `/uploads/${encodeURIComponent(folder)}/${encodeURIComponent(f)}`;
+        html += `<li><a href="${fileUrl}" target="_blank">${f}</a></li>`;
       });
       html += '</ul>';
     });
